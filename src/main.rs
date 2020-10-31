@@ -1,3 +1,7 @@
+use rodio;
+use rodio::Source;
+use std::fs::File;
+use std::io::BufReader;
 use std::thread;
 use std::time::Duration;
 
@@ -48,9 +52,26 @@ fn execute_during_minutes<F: Fn()>(minutes: usize, function: F) {
     execute_during_seconds(seconds, function);
 }
 
+fn load_audio() {
+    let (stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
+
+    // Load a sound from a file, using a path relative to Cargo.toml
+    let file = File::open("./audios/tolling-bell_daniel-simion.mp3").unwrap();
+    let source = rodio::Decoder::new_mp3(BufReader::new(file))
+        .unwrap()
+        .take_duration(Duration::from_secs(15));
+
+    let sink = rodio::Sink::try_new(&stream_handle).unwrap();
+    sink.append(source);
+    sink.play();
+    sink.sleep_until_end();
+}
+
 fn main() {
     let x = || {
         println!("one_second");
     };
+    load_audio();
+    load_audio();
     execute_during_minutes(1, x);
 }
