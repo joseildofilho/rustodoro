@@ -40,20 +40,20 @@ impl ManageTime for Time {
     }
 }
 
-fn execute_during_seconds<F: Fn()>(seconds: usize, function: F) {
-    for _ in 0..seconds {
+fn execute_during_seconds<F: Fn(Time)>(seconds: u64, function: F) {
+    for time in 0..seconds {
         thread::sleep(ONE_SECOND);
-        function()
+        function(Time::new_with_time(time))
     }
 }
 
-fn execute_during_minutes<F: Fn()>(minutes: usize, function: F) {
+fn execute_during_minutes<F: Fn(Time)>(minutes: u64, function: F) {
     let seconds = minutes * 60;
     execute_during_seconds(seconds, function);
 }
 
 fn load_audio() {
-    let (stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
+    let (_output_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
 
     // Load a sound from a file, using a path relative to Cargo.toml
     let file = File::open("./audios/tolling-bell_daniel-simion.mp3").unwrap();
@@ -67,11 +67,15 @@ fn load_audio() {
     sink.sleep_until_end();
 }
 
+fn show_time(time: Time) {
+    let minutes: u64 = time.current.as_secs() / 60;
+    let seconds: u64 = time.current.as_secs() % 60;
+    println!("{} minutes and {} seconds", minutes, seconds);
+}
+
 fn main() {
-    let x = || {
-        println!("one_second");
-    };
+    execute_during_seconds(2, show_time);
     load_audio();
+    execute_during_seconds(1, show_time);
     load_audio();
-    execute_during_minutes(1, x);
 }
