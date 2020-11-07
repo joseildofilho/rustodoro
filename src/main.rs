@@ -74,8 +74,27 @@ fn show_time(time: Time) {
 }
 
 fn main() {
-    execute_during_seconds(2, show_time);
+    execute_during_minutes(25, show_time);
     load_audio();
-    execute_during_seconds(1, show_time);
+    execute_during_minutes(5, show_time);
     load_audio();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rand::Rng;
+    use std::time::Instant;
+
+    fn do_nothing(_a: Time) {}
+
+    #[test]
+    fn test_execute_during_n_seconds() {
+        let mut rng = rand::thread_rng();
+        let time_seconds: u64 = rng.gen_range(1, 5);
+
+        let now = Instant::now();
+        execute_during_seconds(time_seconds, do_nothing);
+        assert_eq!(now.elapsed().as_secs(), time_seconds);
+    }
 }
