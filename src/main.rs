@@ -73,11 +73,17 @@ fn show_time(time: Time) {
     println!("{} minutes and {} seconds", minutes, seconds);
 }
 
+fn execute_frame_of_minutes(time: u64) {
+    execute_during_minutes(time, show_time);
+    load_audio();
+}
+
 fn main() {
-    execute_during_minutes(25, show_time);
-    load_audio();
-    execute_during_minutes(5, show_time);
-    load_audio();
+    for _ in 0..4 {
+        execute_frame_of_minutes(25);
+        execute_frame_of_minutes(5);
+    }
+    execute_frame_of_minutes(15);
 }
 
 #[cfg(test)]
@@ -96,5 +102,12 @@ mod tests {
         let now = Instant::now();
         execute_during_seconds(time_seconds, do_nothing);
         assert_eq!(now.elapsed().as_secs(), time_seconds);
+    }
+
+    #[test]
+    fn test_execute_during_1_minute() {
+        let now = Instant::now();
+        execute_during_minutes(1, do_nothing);
+        assert_eq!(now.elapsed().as_secs(), 60);
     }
 }
